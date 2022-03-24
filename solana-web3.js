@@ -1,5 +1,5 @@
 import Utils from './utils';
-import SplToken from './spl-token';
+import Token from './token';
 import * as Web3 from '@solana/web3.js';
 import{ initWallet, useWallet } from 'solana-wallets-vue';
 
@@ -46,7 +46,7 @@ class SolanaWeb3 {
         devnet: "Devnet"
     };
 
-    splToken;
+    token;
 
     constructor(config) {
 
@@ -79,7 +79,7 @@ class SolanaWeb3 {
 
         this.connectedPublicKey = this.getConnectedPublicKey();
 
-        this.splToken = new SplToken(this);
+        this.token = new Token(this);
     }
 
     connect(walletName) {
@@ -123,7 +123,7 @@ class SolanaWeb3 {
         if (!tokenAddress || tokenAddress == 'SOL') {
             return this.solTransfer(toAddress, amount);
         } else if (tokenAddress) {
-            return this.splTokenTransfer(toAddress, amount, tokenAddress);
+            return this.tokenTransfer(toAddress, amount, tokenAddress);
         } else {
             return new Error("invalid-token-address");
         }
@@ -162,8 +162,8 @@ class SolanaWeb3 {
         });
     }
 
-    splTokenTransfer(toAddress, amount, tokenAddress) {
-        return this.splToken.transfer(toAddress, amount, tokenAddress);
+    tokenTransfer(toAddress, amount, tokenAddress) {
+        return this.token.transfer(toAddress, amount, tokenAddress);
     }
 
     createTransaction(instrucion, txOptions = {}) {

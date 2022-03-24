@@ -1,8 +1,8 @@
-import * as SolanaSplToken from "@solana/spl-token";
+import * as SplToken from "@solana/spl-token";
 import * as Web3 from '@solana/web3.js';
-import Utils from "./Utils";
+import Utils from "./utils";
 
-class SplToken {
+class Token {
 
     web3;
 
@@ -20,20 +20,20 @@ class SplToken {
         const publicKey = this.web3.getConnectedPublicKey();
         const mintAccount = Web3.Keypair.generate();
         
-        const balanceNeeded = await SolanaSplToken.Token.getMinBalanceRentForExemptMint(this.web3.connection);
+        const balanceNeeded = await SplToken.Token.getMinBalanceRentForExemptMint(this.web3.connection);
 
         const transaction = this.web3.createTransaction(
             Web3.SystemProgram.createAccount({
                 fromPubkey: publicKey,
                 newAccountPubkey: mintAccount.publicKey,
                 lamports: balanceNeeded,
-                space: SolanaSplToken.MintLayout.span,
+                space: SplToken.MintLayout.span,
                 programId: this.getProgramId()
             })
         );
 
         transaction.add(
-            SolanaSplToken.Token.createInitMintInstruction(
+            SplToken.Token.createInitMintInstruction(
                 this.getProgramId(),
                 mintAccount.publicKey,
                 decimals, 
@@ -52,20 +52,20 @@ class SplToken {
         const publicKey = this.web3.getConnectedPublicKey();
         const newAcount = Web3.Keypair.generate();
         
-        const balanceNeeded = await SolanaSplToken.Token.getMinBalanceRentForExemptAccount(this.web3.connection);
+        const balanceNeeded = await SplToken.Token.getMinBalanceRentForExemptAccount(this.web3.connection);
 
         const transaction = this.web3.createTransaction(
             Web3.SystemProgram.createAccount({
                 fromPubkey: publicKey,
                 newAccountPubkey: newAcount.publicKey,
                 lamports: balanceNeeded,
-                space: SolanaSplToken.AccountLayout.span,
+                space: SplToken.AccountLayout.span,
                 programId: this.getProgramId()
             })
         );
 
         transaction.add(
-            SolanaSplToken.Token.createInitAccountInstruction(
+            SplToken.Token.createInitAccountInstruction(
                 this.getProgramId(),
                 token.publicKey,
                 newAcount.publicKey,
@@ -87,7 +87,7 @@ class SplToken {
         const publicKey = this.web3.getConnectedPublicKey();
 
         const transaction = this.web3.createTransaction(
-            SolanaSplToken.Token.createMintToInstruction(
+            SplToken.Token.createMintToInstruction(
                 this.getProgramId(),
                 token.publicKey,
                 tokenAccount, 
@@ -101,11 +101,11 @@ class SplToken {
     }
 
     getProgramId() {
-        return SolanaSplToken.TOKEN_PROGRAM_ID;
+        return SplToken.TOKEN_PROGRAM_ID;
     }
 
     instance(tokenAddress) {
-        return new SolanaSplToken.Token(
+        return new SplToken.Token(
             this.web3.connection,
             (new Web3.PublicKey(this.tokenAddress || tokenAddress)),
             this.getProgramId()
@@ -138,7 +138,7 @@ class SplToken {
                 const toTokenAccount = await token.getOrCreateAssociatedAccountInfo(toPublicKey);
     
                 const transaction = this.web3.createTransaction(
-                    SolanaSplToken.Token.createTransferInstruction(
+                    SplToken.Token.createTransferInstruction(
                         programId,
                         fromTokenAccount.address,
                         toTokenAccount.address, 
@@ -186,4 +186,4 @@ class SplToken {
     }
 }
 
-module.exports = SplToken;
+module.exports = Token;
