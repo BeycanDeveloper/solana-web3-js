@@ -1,0 +1,51 @@
+{
+  "name": "solana-web3",
+  "version": "1.0.0",
+  "description": "Solana has ready-made methods to connect to wallets and perform many transactions.",
+  "targets": {
+    "frontend": {
+      "source": "solana-web3.js"
+    },
+    "module": false,
+    "main": false,
+    "types": false
+  },
+  "scripts": {
+    "serve": "parcel test.html --no-cache --dist-dir test",
+    "build": "parcel build --no-cache --no-source-maps --dist-dir dist",
+    "build-w": "parcel watch --no-cache --no-source-maps --dist-dir dist"
+  },
+  "main": "solana-web3.js",
+  "browser": "dist/solana-web3.js",
+  "module": "dist/solana-web3.js",
+  "types": "solana-web3.js.d.ts",
+  "typings": "solana-web3.js",
+  "prepublishOnly": "npm run build",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BeycanDeveloper/solana-web3-js.git"
+  },
+  "keywords": [
+    "Solana",
+    "crypto",
+    "payment"
+  ],
+  "author": "Halil Beycan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BeycanDeveloper/solana-web3-js/issues"
+  },
+  "homepage": "https://github.com/BeycanDeveloper/solana-web3-js",
+  "dependencies": {
+    "@solana/spl-token": "^0.1.8",
+    "@solana/wallet-adapter-wallets": "^0.15.5",
+    "@solana/web3.js": "^1.36.0",
+    "bignumber.js": "^9.0.2",
+    "solana-wallets-vue": "^0.3.2"
+  },
+  "devDependencies": {
+    "@parcel/transformer-vue": "^2.3.2",
+    "buffer": "^6.0.3",
+    "process": "^0.11.10"
+  }
+}
