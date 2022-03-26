@@ -119,7 +119,7 @@ class SolanaWeb3 {
         return Utils.toDecimal(balance, 9);
     }
 
-    async transfer(toAddress, amount, tokenAddress = null) {
+    transfer(toAddress, amount, tokenAddress = null) {
         if (!tokenAddress || tokenAddress == 'SOL') {
             return this.solTransfer(toAddress, amount);
         } else if (tokenAddress) {
