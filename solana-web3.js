@@ -195,7 +195,7 @@ class SolanaWeb3 {
 
     getTransactionUrl(signature) {
         let node = this.connectedCluster.node;
-        let transactionUrl = this.cluster.explorer + "tx/" + signature;
+        let transactionUrl = this.connectedCluster.explorer + "tx/" + signature;
         transactionUrl += node != 'mainnet-beta' ? '?cluster=' + node : '';
         return transactionUrl;
     }
