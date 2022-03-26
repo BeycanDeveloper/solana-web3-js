@@ -41,10 +41,25 @@ class SolanaWeb3 {
     connectedCluster;
 
     clusters = {
-        "mainnet-beta": "Mainnet",
-        testnet: "Testnet",
-        devnet: "Devnet"
-    };
+        "mainnet-beta": {
+            node: "mainnet-beta",
+            name: "Mainnet",
+            host: "https://api.devnet.solana.com",
+            explorer: "https://solscan.io/"
+        },
+        testnet: {
+            node: "testnet",
+            name: "Testnet",
+            host: "https://api.testnet.solana.com",
+            explorer: "https://solscan.io/"
+        },
+        devnet: {
+            node: "devnet",
+            name: "Devnet",
+            host: "https://api.mainnet-beta.solana.com/",
+            explorer: "https://solscan.io/"
+        }
+    }
 
     token;
 
@@ -176,6 +191,13 @@ class SolanaWeb3 {
 
     confirmTransaction(signature, commitment = 'finalized') {
         return this.connection.confirmTransaction(signature, commitment);
+    }
+
+    getTransactionUrl(signature) {
+        let node = this.connectedCluster.node;
+        let transactionUrl = this.cluster.explorer + "tx/" + signature;
+        transactionUrl += node != 'mainnet-beta' ? '?cluster=' + node : '';
+        return transactionUrl;
     }
 
     addEventListener(name, fn) {
