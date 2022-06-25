@@ -1,15 +1,27 @@
 import * as SplToken from "@solana/spl-token";
 import * as Web3 from '@solana/web3.js';
 import Utils from "./utils";
+import {TokenListProvider} from '@solana/spl-token-registry';
 
 class Token {
 
     web3;
 
+    tokenList;
+
     tokenAddress;
 
     constructor(web3) {
         this.web3 = web3;
+
+        new TokenListProvider().resolve().then(tokens => {
+            const tokenList = tokens.filterByClusterSlug(this.web3.connectedCluster.node).getList();
+        
+            this.tokenList = tokenList.reduce((map, item) => {
+                map.set(item.address, item);
+                return map;
+            },  new Map());
+        });
     }
 
     setTokenAddress(tokenAddress) {
@@ -128,6 +140,7 @@ class Token {
                 const programId = this.getProgramId();
                 const fromPublicKey = this.web3.getConnectedPublicKey();
                 const toPublicKey = new Web3.PublicKey(toAddress);
+                const tokenPublicKey = new Web3.PublicKey(tokenAddress);
                 const tokenInfo = await this.getInfo(tokenAddress);
                 amount = Utils.toHexadecimal(amount, tokenInfo.decimals);
     
@@ -135,13 +148,34 @@ class Token {
     
                 const fromTokenAccount = await token.getOrCreateAssociatedAccountInfo(fromPublicKey);
     
-                const toTokenAccount = await token.getOrCreateAssociatedAccountInfo(toPublicKey);
-    
-                const transaction = this.web3.createTransaction(
+                const toTokenAccount = await SplToken.Token.getAssociatedTokenAddress(
+                    token.associatedProgramId,
+                    token.programId,
+                    tokenPublicKey,
+                    toPublicKey
+                );
+
+                const receiverAccount = await this.web3.connection.getAccountInfo(toTokenAccount);
+
+                const transaction = new Web3.Transaction();
+                if (receiverAccount === null) {
+                    transaction.add(
+                        SplToken.Token.createAssociatedTokenAccountInstruction(
+                            token.associatedProgramId,
+                            token.programId,
+                            tokenPublicKey,
+                            toTokenAccount,
+                            toPublicKey,
+                            fromPublicKey
+                        )
+                    )
+                }
+                
+                transaction.add(
                     SplToken.Token.createTransferInstruction(
                         programId,
                         fromTokenAccount.address,
-                        toTokenAccount.address, 
+                        toTokenAccount, 
                         fromPublicKey,
                         [],
                         amount
@@ -166,16 +200,30 @@ class Token {
         tokenAddress = this.tokenAddress || tokenAddress;
         const tokenPublicKey = new Web3.PublicKey(tokenAddress);
 
-        let tokenAccounts = await this.web3.connection.getTokenAccountsByOwner(
-            this.web3.getConnectedPublicKey(), 
-            {
-                mint: tokenPublicKey
-            }
+        const token = this.instance(tokenAddress);
+        const fromPublicKey = this.web3.getConnectedPublicKey();
+        const tokenAccount = await SplToken.Token.getAssociatedTokenAddress(
+            token.associatedProgramId,
+            token.programId,
+            tokenPublicKey,
+            fromPublicKey
         );
 
-        let tokenAccount = tokenAccounts.value[0].pubkey;
+        let tokenInfo = {};
+        try {
+            tokenInfo = await this.web3.connection.getTokenAccountBalance(tokenAccount);
+        } catch (error) {
 
-        let tokenInfo = await this.web3.connection.getTokenAccountBalance(tokenAccount);
+            let tokenInfoByList = this.tokenList.get(tokenAddress);
+
+            console.log(tokenInfoByList);
+            tokenInfo.value = {
+                amount: "0",
+                uiAmount: 0,
+                uiAmountString: "0",
+                decimals: tokenInfoByList.decimals
+            };
+        }
 
         return Object.assign(tokenInfo.value, {tokenAccount: tokenAccount.toBase58(), tokenAddress});
     }
