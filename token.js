@@ -216,7 +216,6 @@ class Token {
 
             let tokenInfoByList = this.tokenList.get(tokenAddress);
 
-            console.log(tokenInfoByList);
             tokenInfo.value = {
                 amount: "0",
                 uiAmount: 0,
